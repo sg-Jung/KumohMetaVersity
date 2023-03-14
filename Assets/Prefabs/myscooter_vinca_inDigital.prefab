@@ -1658,7 +1658,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5708894108986426180}
   m_Layer: 0
-  m_Name: myscooter_vinca
+  m_Name: myscooter_vinca_inDigital
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
