@@ -4,11 +4,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement1 : MonoBehaviour
 {
     [Header("Movement")]
     [SerializeField]
-    public float moveSpeed;
+    private float moveSpeed;
     public float walkSpeed;
     public float sprintSpeed;
     public float climbSpeed;
