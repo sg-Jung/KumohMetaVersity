@@ -17,13 +17,14 @@ public abstract class State
     public virtual void Exit() { }
 }
 
-public class IdleState : State
+public class FreezeState : State
 {
-    public IdleState(PlayerMovement playerMovement) : base(playerMovement) { }
+    public FreezeState(PlayerMovement playerMovement) : base(playerMovement) { }
 
     public override void Enter() 
-    { 
-
+    {
+        _playerMovement.state = PlayerMovement.MovementState.freeze;
+        _playerMovement.rb.velocity = Vector3.zero;
     }
 
     public override void Update()
@@ -43,7 +44,8 @@ public class WalkState : State
 
     public override void Enter()
     {
-
+        _playerMovement.state = PlayerMovement.MovementState.walking;
+        _playerMovement.moveSpeed = _playerMovement.walkSpeed;
     }
 
     public override void Update()
@@ -57,13 +59,14 @@ public class WalkState : State
     }
 }
 
-public class RunningState : State
+public class SprintState : State
 {
-    public RunningState(PlayerMovement playerMovement) : base(playerMovement) { }
+    public SprintState(PlayerMovement playerMovement) : base(playerMovement) { }
 
     public override void Enter()
     {
-
+        _playerMovement.state = PlayerMovement.MovementState.sprinting;
+        _playerMovement.moveSpeed = _playerMovement.sprintSpeed;
     }
 
     public override void Update()
@@ -83,7 +86,7 @@ public class JumpState : State
 
     public override void Enter()
     {
-
+        
     }
 
     public override void Update()
@@ -103,7 +106,14 @@ public class CrouchState : State
 
     public override void Enter()
     {
+        _playerMovement.state = PlayerMovement.MovementState.crouching;
+        _playerMovement.moveSpeed = _playerMovement.crouchSpeed;
+        
+        _playerMovement.crouched = true;
 
+        Vector3 playerLocalScale = _playerMovement.transform.localScale;
+        playerLocalScale = new Vector3(playerLocalScale.x, _playerMovement.crouchYScale, playerLocalScale.z);
+        _playerMovement.rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
     }
 
     public override void Update()
@@ -113,7 +123,10 @@ public class CrouchState : State
 
     public override void Exit()
     {
+        _playerMovement.crouched = false;
 
+        Vector3 playerLocalScale = _playerMovement.transform.localScale;
+        playerLocalScale = new Vector3(playerLocalScale.x, _playerMovement.startYScale, playerLocalScale.z);
     }
 }
 
@@ -123,7 +136,7 @@ public class AirState : State
 
     public override void Enter()
     {
-
+        _playerMovement.state = PlayerMovement.MovementState.air;
     }
 
     public override void Update()

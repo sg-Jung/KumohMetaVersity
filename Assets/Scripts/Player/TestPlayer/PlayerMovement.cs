@@ -25,8 +25,9 @@ public class PlayerMovement : MonoBehaviour
     [Header("Crouching")]
     public float crouchSpeed;
     public float crouchYScale;
-    private float startYScale;
-    bool crouched;
+    public bool crouched;
+    [HideInInspector]
+    public float startYScale;
 
     [Header("KeyBinds")]
     public KeyCode jumpKey = KeyCode.Space;
@@ -55,13 +56,15 @@ public class PlayerMovement : MonoBehaviour
 
     Vector3 moveDirection;
 
-    Rigidbody rb;
+    [HideInInspector]
+    public Rigidbody rb;
 
     public bool climbing;
     public bool WallRunning;
     public bool sliding;
-
     public bool freeze;
+
+    private FSM fsm;
 
     public MovementState state;
 
@@ -73,6 +76,20 @@ public class PlayerMovement : MonoBehaviour
         slliding,
         crouching,
         air
+    }
+
+    private void Awake()
+    {
+        fsm = new FSM();
+
+        fsm.AddState("Freeze", new FreezeState(this));
+        fsm.AddState("Walk", new WalkState(this));
+        fsm.AddState("Sprint", new SprintState(this));
+        fsm.AddState("Jump", new JumpState(this));
+        fsm.AddState("Crouch", new CrouchState(this));
+        fsm.AddState("Air", new AirState(this));
+
+        fsm.SetState("Walk");
     }
 
     void Start()
@@ -117,12 +134,13 @@ public class PlayerMovement : MonoBehaviour
             Invoke(nameof(ResetJump), jumpCooldown);
         }
 
-        // start crouch
+        /*// start crouch
         if (Input.GetKeyDown(crouchKey))
         {
-            crouched = true;
+            *//*crouched = true;
             transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
-            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
+            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);*//*
+
         }
 
         // stop crouch
@@ -130,7 +148,7 @@ public class PlayerMovement : MonoBehaviour
         {
             crouched = false;
             transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
-        }
+        }*/
     }
 
     void StateHandler()
@@ -153,10 +171,22 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Mode - Crouching
-        if (Input.GetKey(crouchKey) && crouched)
+        /*if (Input.GetKey(crouchKey) && crouched)
         {
             state = MovementState.crouching;
             moveSpeed = crouchSpeed;
+            fsm.SetState("Crouch");
+        }*/
+
+        if (Input.GetKeyDown(crouchKey) && !crouched)
+        {
+            fsm.SetState("Crouch");
+            Debug.Log("Set Crouch");
+        }
+        else if(Input.GetKeyUp(crouchKey) && crouched)
+        {
+            fsm.SetState("Walk");
+            Debug.Log("Set Walk");
         }
 
         // Mode - Sprinting
@@ -261,4 +291,5 @@ public class PlayerMovement : MonoBehaviour
     {
         return Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
     }
+
 }
