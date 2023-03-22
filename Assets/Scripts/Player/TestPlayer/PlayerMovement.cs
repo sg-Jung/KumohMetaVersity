@@ -88,6 +88,7 @@ public class PlayerMovement : MonoBehaviour
         fsm.AddState("Jump", new JumpState(this));
         fsm.AddState("Crouch", new CrouchState(this));
         fsm.AddState("Air", new AirState(this));
+        fsm.AddState("Silde", new SlideState(this));
 
         fsm.SetState("Walk");
     }
@@ -111,7 +112,7 @@ public class PlayerMovement : MonoBehaviour
         grounded = Physics.Raycast(transform.position, Vector3.down, groundDistance);
         // grounded = Physics.CheckSphere(groundCheck.position, groundDistance, whatIsGround);
 
-        MyInput();
+        //MyInput();
         SpeedControl();
         StateHandler();
 
@@ -123,16 +124,7 @@ public class PlayerMovement : MonoBehaviour
 
     void MyInput()
     {
-        horizontalInput = Input.GetAxisRaw("Horizontal");
-        verticalInput = Input.GetAxisRaw("Vertical");
-
-        // when to jump
-        if (Input.GetKey(jumpKey) && readyToJump && grounded)
-        {
-            Jump();
-
-            Invoke(nameof(ResetJump), jumpCooldown);
-        }
+       
 
         /*// start crouch
         if (Input.GetKeyDown(crouchKey))
@@ -153,6 +145,10 @@ public class PlayerMovement : MonoBehaviour
 
     void StateHandler()
     {
+        // Input - WASD
+        horizontalInput = Input.GetAxisRaw("Horizontal");
+        verticalInput = Input.GetAxisRaw("Vertical");
+        
         // Mode - Freeze
         if (freeze)
         {
@@ -160,7 +156,7 @@ public class PlayerMovement : MonoBehaviour
             rb.velocity = Vector3.zero;
         }
 
-        // Mode - Sliding
+        /*// Mode - Sliding     // 아직 사용할지 몰라 미구현
         if (sliding)
         {
             state = MovementState.slliding;
@@ -168,45 +164,44 @@ public class PlayerMovement : MonoBehaviour
             // increase speed by one every second
             if (OnSlope() && rb.velocity.y < 0.1f)
                 moveSpeed = slideSpeed;
+
+            fsm.SetState("Slide");
+        }*/
+
+        // Mode - Jumping
+        if (Input.GetKey(jumpKey) && readyToJump && grounded)
+        {
+            Jump();
+
+            Invoke(nameof(ResetJump), jumpCooldown);
         }
 
         // Mode - Crouching
-        /*if (Input.GetKey(crouchKey) && crouched)
-        {
-            state = MovementState.crouching;
-            moveSpeed = crouchSpeed;
-            fsm.SetState("Crouch");
-        }*/
-
         if (Input.GetKeyDown(crouchKey) && !crouched)
         {
             fsm.SetState("Crouch");
-            Debug.Log("Set Crouch");
         }
         else if(Input.GetKeyUp(crouchKey) && crouched)
         {
             fsm.SetState("Walk");
-            Debug.Log("Set Walk");
         }
 
         // Mode - Sprinting
-        if (grounded && Input.GetKey(sprintKey))
+        if (Input.GetKey(sprintKey) && grounded && !crouched)
         {
-            state = MovementState.sprinting;
-            moveSpeed = sprintSpeed;
+            fsm.SetState("Sprint");
         }
 
         // Mode - Walking
         else if (grounded && !crouched)
         {
-            state = MovementState.walking;
-            moveSpeed = walkSpeed;
+            fsm.SetState("Walk");
         }
 
         // Mode - Air
         else if (!readyToJump)
         {
-            state = MovementState.air;
+            fsm.SetState("Air");
         }
 
     }
@@ -276,7 +271,7 @@ public class PlayerMovement : MonoBehaviour
         exitingSlope = false;
     }
 
-    bool OnSlope()
+    public bool OnSlope()
     {
         if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
         {

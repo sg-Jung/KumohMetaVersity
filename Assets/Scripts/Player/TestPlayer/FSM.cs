@@ -12,6 +12,9 @@ public class FSM
         states[name] = state;
     }
 
+    /// <summary>
+    /// 상태 리스트 : Freeze, Walk, Sprint, Jump, Crouch, Air, Slide
+    /// </summary>
     public void SetState(string name)
     {
         if (states.ContainsKey(name))

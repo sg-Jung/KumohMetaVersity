@@ -111,8 +111,7 @@ public class CrouchState : State
         
         _playerMovement.crouched = true;
 
-        Vector3 playerLocalScale = _playerMovement.transform.localScale;
-        playerLocalScale = new Vector3(playerLocalScale.x, _playerMovement.crouchYScale, playerLocalScale.z);
+        _playerMovement.transform.localScale = new Vector3(_playerMovement.transform.localScale.x, _playerMovement.crouchYScale, _playerMovement.transform.localScale.z);
         _playerMovement.rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
     }
 
@@ -125,8 +124,7 @@ public class CrouchState : State
     {
         _playerMovement.crouched = false;
 
-        Vector3 playerLocalScale = _playerMovement.transform.localScale;
-        playerLocalScale = new Vector3(playerLocalScale.x, _playerMovement.startYScale, playerLocalScale.z);
+        _playerMovement.transform.localScale = new Vector3(_playerMovement.transform.localScale.x, _playerMovement.startYScale, _playerMovement.transform.localScale.z);
     }
 }
 
@@ -142,6 +140,28 @@ public class AirState : State
     public override void Update()
     {
 
+    }
+
+    public override void Exit()
+    {
+
+    }
+}
+
+public class SlideState : State
+{
+    public SlideState(PlayerMovement playerMovement) : base(playerMovement) { }
+
+    public override void Enter()
+    {
+        _playerMovement.state = PlayerMovement.MovementState.slliding;
+    }
+
+    public override void Update()
+    {
+        // increase speed by one every second
+        if (_playerMovement.OnSlope() && _playerMovement.rb.velocity.y < 0.1f)
+            _playerMovement.moveSpeed = _playerMovement.slideSpeed;
     }
 
     public override void Exit()
