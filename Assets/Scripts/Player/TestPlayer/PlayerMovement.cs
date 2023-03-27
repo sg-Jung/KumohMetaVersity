@@ -104,6 +104,7 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         MovePlayer();
+        DetectWall();
     }
 
     // Update is called once per frame
@@ -230,6 +231,21 @@ public class PlayerMovement : MonoBehaviour
 
         // turn gravity off while on slope
         rb.useGravity = !OnSlope();
+    }
+
+    void DetectWall()
+    {
+        Vector3 velocity = moveDirection * moveSpeed;
+        velocity.y = rb.velocity.y;
+        Vector3 newPos = rb.position + velocity * Time.fixedDeltaTime;
+        RaycastHit hit;
+
+        if (Physics.Raycast(rb.position, velocity.normalized, out hit, velocity.magnitude * Time.fixedDeltaTime))
+        {
+            newPos = hit.point - velocity.normalized * 0.01f;
+        }
+
+        rb.MovePosition(newPos);
     }
 
     void SpeedControl()
