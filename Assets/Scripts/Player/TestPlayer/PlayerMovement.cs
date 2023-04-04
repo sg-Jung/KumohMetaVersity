@@ -46,6 +46,9 @@ public class PlayerMovement : MonoBehaviour
     private RaycastHit slopeHit;
     private bool exitingSlope;
 
+    [Header("Wall Check")]
+    public float rayDistance;
+
     //[Header("References")]
     //public Climbing climbingScript;
 
@@ -104,7 +107,7 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         MovePlayer();
-        DetectWall();
+        //DetectWall();
     }
 
     // Update is called once per frame
@@ -117,6 +120,14 @@ public class PlayerMovement : MonoBehaviour
         SpeedControl();
         StateHandler();
 
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, moveDirection.normalized, out hit, rayDistance))
+        {
+            rb.velocity = Vector3.zero;
+            Debug.Log("Hit!");
+        }
+        Debug.DrawRay(transform.position, moveDirection.normalized * rayDistance, Color.red);
+
         if (grounded)
             rb.drag = groundDrag;
         else
@@ -125,8 +136,6 @@ public class PlayerMovement : MonoBehaviour
 
     void MyInput()
     {
-       
-
         /*// start crouch
         if (Input.GetKeyDown(crouchKey))
         {
@@ -223,7 +232,9 @@ public class PlayerMovement : MonoBehaviour
 
         // on ground
         if (grounded)
+        {
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
+        }
 
         // in air
         else if (!grounded)
