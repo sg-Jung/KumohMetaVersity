@@ -26,7 +26,7 @@ public class CamMovement : MonoBehaviour
 
         yRot += mouseX;
         xRot -= mouseY;
-
+        
         if(camPos.isThird)
             xRot = Mathf.Clamp(xRot, 0f, 45f);
         else
