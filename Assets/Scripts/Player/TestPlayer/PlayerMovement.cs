@@ -95,6 +95,7 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
         fsm.AddState("Silde", new SlideState(this));
 
         fsm.SetState("Walk");
+
     }
 
     void Start()

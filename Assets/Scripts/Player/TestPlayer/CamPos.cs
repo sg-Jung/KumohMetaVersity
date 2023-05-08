@@ -21,8 +21,8 @@ public class CamPos : MonoBehaviour
 
     private void Awake()
     {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+       /* Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;*/
     }
 
     private void Start()
