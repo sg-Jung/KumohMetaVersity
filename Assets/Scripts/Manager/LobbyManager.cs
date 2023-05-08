@@ -79,6 +79,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             connectionInfoText.text = "Connecting to Random Room...";
 
             Debug.Log("Connecting to Random Room...");
+            
+            //PhotonNetwork.NickName = 
             PhotonNetwork.JoinRandomRoom(); // 랜덤한 방으로 접속을 시도
         }
         else
@@ -87,6 +89,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
             Debug.Log("Offline : Connection Disabled - Try reconnecting...");
             PhotonNetwork.ConnectUsingSettings(); // 재접속 시도
+        }
+    }
+
+    public void OnInputEndEdit(string value)
+    {
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+
         }
     }
 
