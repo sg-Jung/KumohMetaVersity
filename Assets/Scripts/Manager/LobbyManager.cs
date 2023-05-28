@@ -5,6 +5,7 @@ using Photon.Pun;
 using TMPro;
 using UnityEngine.UI;
 using Photon.Realtime;
+using UnityEngine.ProBuilder.Shapes;
 
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
@@ -27,6 +28,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public TMP_Text connectionInfoText;
     public Button joinButton;
 
+    [Header("Player & Camera & StartCanvas")]
+    public GameObject spawnPos;
+    public GameObject startCanvas;
+
     void Awake()
     {
         if (instance == null)
@@ -43,6 +48,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         PhotonNetwork.AutomaticallySyncScene = false; // 각 클라이언트가 개별적으로 씬을 이동해야 하기 때문에 씬 동기화 false
         PhotonNetwork.GameVersion = gameVersion;
         PhotonNetwork.NickName = userId;
+
+        // 캔버스 초기
+        startCanvas.SetActive(true);
 
         PhotonNetwork.ConnectUsingSettings(); // 마스터 서버 접속
 
@@ -72,6 +80,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void Connect() // joinButton or 엔터키를 입력했을 때 실행되는 함수
     {
+        if (string.IsNullOrEmpty(inputUserId.text)) return; // 이름을 입력하지 않았을 경우 함수 종료
+        if (PhotonNetwork.InRoom) return; // 플레이어가 이미 Room에 입장한 경우 종료
+
+
         joinButton.interactable = false; // 연속 실행을 방지하기 위해 버튼 비활성화
 
         if (PhotonNetwork.IsConnected) // 마스터 서버가 연결 되어 있다면
@@ -79,8 +91,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             connectionInfoText.text = "Connecting to Random Room...";
 
             Debug.Log("Connecting to Random Room...");
-            
-            //PhotonNetwork.NickName = 
+
+            PhotonNetwork.NickName = inputUserId.text;
+            Debug.Log(inputUserId.text);
             PhotonNetwork.JoinRandomRoom(); // 랜덤한 방으로 접속을 시도
         }
         else
@@ -94,9 +107,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void OnInputEndEdit(string value)
     {
+        if (string.IsNullOrEmpty(value)) return; // 이름이 입력되지 않았을 경우 함수 종료
+
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
-
+            Connect();
         }
     }
 
@@ -113,7 +128,24 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         connectionInfoText.text = "Connected with Room.";
         Debug.Log("Connected with Room.");
         // SceneManager.LoadScene(); // LoadScene()으로 씬 이동 시 자신만 넘어가고 나머지 사람들은 넘어가지 않으므로 씬 변경 시 해당 함수를 사용해선 안됌
-        PhotonNetwork.LoadLevel("Kumoh_Main"); // Photon에선 씬 이동 시 PhotonNetwork.LoadLevel()를 사용해서 이동해야 함.
+        // PhotonNetwork.LoadLevel("Kumoh_Main"); // Photon에선 씬 이동 시 PhotonNetwork.LoadLevel()를 사용해서 이동해야 함
+        // 기본적으로 Photon PUN은 방에 입장한 클라이언트들이 동일한 씬을 공유하도록 설계 되어있어 OnJoinedRoom 함수에서 씬을 불러오지 않아도 기본적으로 현재 씬이 유지됩니다.
+
+        Camera.main.enabled = false;
+        GameObject player = PhotonNetwork.Instantiate("Player", spawnPos.transform.position, spawnPos.transform.rotation);
+
+
+        // 플레이어 기능 On
+        startCanvas.SetActive(false);
+
+        // 마우스 커서 비활성화
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        Debug.Log("New player entered the room: " + newPlayer.NickName);
     }
 
 }

@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class CamPos : MonoBehaviour
+public class CamPos : MonoBehaviourPunCallbacks
 {
     [Header("Camera Position")]
     public Transform target;    // 카메라가 따라갈 대상
-    public Transform camPos;
+    public Transform one_camPos;
     public Transform third_camPos;
 
     [Header("Third Person")]
@@ -19,12 +20,6 @@ public class CamPos : MonoBehaviour
 
     public bool isThird = false;
 
-    private void Awake()
-    {
-       /* Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;*/
-    }
-
     private void Start()
     {
         isThird = false;
@@ -34,12 +29,19 @@ public class CamPos : MonoBehaviour
 
     void Update()
     {
+        // 부모 오브젝트에 Photon View 컴포넌트가 있으므로 사용가능
+        if (!photonView.IsMine) return;
+
+
         InputKey();
         FollowCamPos();
     }
     private void LateUpdate()
     {
-        if(isThird)
+        if (!photonView.IsMine) return;
+
+
+        if (isThird)
             CameraNoDrill();
     }
 
@@ -71,7 +73,7 @@ public class CamPos : MonoBehaviour
         if(isThird)
             transform.position = third_camPos.position;
         else
-            transform.position = camPos.position;
+            transform.position = one_camPos.position;
 
     }
 }

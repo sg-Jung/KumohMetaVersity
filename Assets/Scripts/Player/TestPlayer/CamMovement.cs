@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class CamMovement : MonoBehaviour
+public class CamMovement : MonoBehaviourPunCallbacks
 {
     [Header("CamPos Class")]
     public CamPos camPos;
@@ -17,10 +18,13 @@ public class CamMovement : MonoBehaviour
 
     float xRot, mouseX;
     float yRot, mouseY;
-    
 
     void Update()
     {
+        // 부모 오브젝트에 Photon View 컴포넌트가 있으므로 사용가능
+        if (!photonView.IsMine) return;
+
+
         mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sensX;
         mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * sensY;
 
