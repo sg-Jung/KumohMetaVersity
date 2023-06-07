@@ -32,7 +32,6 @@ public class CamPos : MonoBehaviourPunCallbacks
         // 부모 오브젝트에 Photon View 컴포넌트가 있으므로 사용가능
         if (!photonView.IsMine) return;
 
-
         InputKey();
         FollowCamPos();
     }

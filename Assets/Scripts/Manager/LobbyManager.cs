@@ -31,6 +31,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     [Header("Player & Camera & StartCanvas")]
     public GameObject spawnPos;
     public GameObject startCanvas;
+    public GameObject cameraPrefab;
 
     void Awake()
     {
@@ -131,9 +132,26 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         // PhotonNetwork.LoadLevel("Kumoh_Main"); // Photon에선 씬 이동 시 PhotonNetwork.LoadLevel()를 사용해서 이동해야 함
         // 기본적으로 Photon PUN은 방에 입장한 클라이언트들이 동일한 씬을 공유하도록 설계 되어있어 OnJoinedRoom 함수에서 씬을 불러오지 않아도 기본적으로 현재 씬이 유지됩니다.
 
-        Camera.main.enabled = false;
+        Destroy(Camera.main);
         GameObject player = PhotonNetwork.Instantiate("Player", spawnPos.transform.position, spawnPos.transform.rotation);
+       
+        // 로컬 플레이어인 경우에만 카메라 생성
+        if (player.GetComponent<PhotonView>().IsMine)
+        {
+            GameObject camera = Instantiate(cameraPrefab); // 로컬 공간에 생성
+            CamPos camPos = camera.GetComponent<CamPos>();
+            CamMovement camMove = camera.GetComponentInChildren<CamMovement>();
+            
+            camera.transform.SetParent(player.transform);
 
+            camPos.target = player.transform;
+            camPos.one_camPos = player.transform.GetChild(2).GetChild(0);
+            camPos.third_camPos = player.transform.GetChild(2).GetChild(1);
+
+            camMove.camPos = camPos;
+            camMove.orientation = player.transform.GetChild(1);
+            camMove.player = player.transform;
+        }
 
         // 플레이어 기능 On
         startCanvas.SetActive(false);
